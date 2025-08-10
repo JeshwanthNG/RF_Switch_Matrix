@@ -1,0 +1,18 @@
+"Id";"Designator";"Package";"Quantity";"Designation";"Supplier and ref";
+1;"J14,J13";"PinSocket_1x02_P2.54mm_Vertical";2;"Conn_01x02_Male";;;
+2;"U1";"ST_Morpho_Connector_144_STLink";1;"NUCLEO144-F439ZI";;;
+3;"C15,C16,C14,C13,C12,C11,C10,C9,C1,C4,C5,C7";"C_0805_2012Metric_Pad1.18x1.45mm_HandSolder";12;"0.1uf";;;
+4;"C17,C2,C8";"CP_EIA-2012-12_Kemet-R_Pad1.30x1.05mm_HandSolder";3;"22uf";;;
+5;"REF**,REF**,REF**,REF**";"MountingHole_2.2mm_M2";4;"MountingHole_2.2mm_M2";;;
+6;"U9,U3,U4,U5,U6,U7,U8,U10";"DIP-14_W7.62mm_Socket";8;"74125";;;
+7;"C3,C6";"CP_EIA-2012-12_Kemet-R_Pad1.30x1.05mm_HandSolder";2;"10uf";;;
+8;"J1";"BarrelJack_Horizontal";1;"Barrel_Jack_Switch_Pin3Ring";;;
+9;"J2";"PinSocket_1x16_P2.54mm_Vertical";1;"LCD20x4";;;
+10;"J3";"PinSocket_1x08_P2.54mm_Vertical";1;"Conn_01x08_Male";;;
+11;"J4";"JST_EH_B4B-EH-A_1x04_P2.50mm_Vertical";1;"Conn_01x04_Male";;;
+12;"J5,J6,J7,J8,J9,J10,J11,J12";"JST_EH_B6B-EH-A_1x06_P2.50mm_Vertical";8;"Conn_01x06_Male";;;
+13;"Q1";"SOT-23";1;"BC547";;;
+14;"R1";"R_0805_2012Metric_Pad1.20x1.40mm_HandSolder";1;"1k";;;
+15;"R2,R3,R4,R5,R6";"R_0805_2012Metric_Pad1.20x1.40mm_HandSolder";5;"4.7k";;;
+16;"RV1";"Potentiometer_Bourns_3296W_Vertical";1;"R_POT";;;
+17;"U2,U11";"TO-220-3_Vertical";2;"L7805";;;

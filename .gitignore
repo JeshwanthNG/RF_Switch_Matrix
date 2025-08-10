@@ -53,3 +53,32 @@ dkms.conf
 
 # debug information files
 *.dwo
+/.metadata/
+
+# =====================
+# Eclipse / STM32CubeIDE
+# =====================
+.metadata/
+STM32F439ZI_APP/Debug/
+
+# =====================
+# Visual Studio project (GUIAPP)
+# =====================
+GUIAPP/bin/
+GUIAPP/obj/
+GUIAPP/.vs/
+GUIAPP/app.publish/
+GUIAPP/*.user
+GUIAPP/*.suo
+GUIAPP/*.userosscache
+GUIAPP/*.sln.docstates
+GUIAPP/*_TemporaryKey.pfx
+GUIAPP/*.vsidx
+GUIAPP/*.cache
+GUIAPP/*.log
+GUIAPP/*.tmp
+GUIAPP/*.bak
+GUIAPP/*.old
+GUIAPP/TestResults/
+
+
