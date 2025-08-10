@@ -1,0 +1,82 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor<<Control>> LightBlue
+  BackgroundColor<<RF>> LightGreen
+  BackgroundColor<<Power>> Wheat
+  BackgroundColor<<Remote>> LightGray
+  BorderColor Black
+}
+
+title RF Switch Matrix - System Block Diagram
+
+' Remote Users
+rectangle "Remote Users" <<Remote>> {
+  rectangle "PC / Test Controller" as PC
+}
+
+' Control Block
+rectangle "Control Block" <<Control>> {
+  rectangle "RS-232\nTransceiver" as RS232
+  rectangle "RS-485\nTransceiver" as RS485
+  rectangle "Ethernet PHY\n+ RJ45" as ETH
+  rectangle "STM32 Cortex-M4\nController" as MCU
+  rectangle "LCD + Keypad\nInterface" as UI
+  rectangle "EEPROM / Flash\n(Config & Logs)" as MEM
+  rectangle "GPIO/SPI/I2C\nDriver Lines" as GPIO
+}
+
+' RF Switching Block
+rectangle "RF Switching Block" <<RF>> {
+  rectangle "IN1" as IN1
+  rectangle "IN2" as IN2
+  rectangle "IN3" as IN3
+  rectangle "IN4" as IN4
+  rectangle "4×4 RF Crosspoint\n(1P4T Modules + Drivers)" as XPT
+  rectangle "OUT1" as OUT1
+  rectangle "OUT2" as OUT2
+  rectangle "OUT3" as OUT3
+  rectangle "OUT4" as OUT4
+  rectangle "RF Detectors / Couplers\n(Optional)" as MON
+}
+
+' Power Block
+rectangle "Power Block" <<Power>> {
+  rectangle "AC-DC Converter" as AC
+  rectangle "Isolated / Filtered Rails\n(5V / 3V3 / 12V)" as RAILS
+  rectangle "Fuses / TVS / EMI Filter" as PROT
+}
+
+' Connections - Remote to Control
+PC -down-> RS232 : Serial
+PC -down-> RS485 : Serial
+PC -down-> ETH : TCP/IP
+
+' Control block internals
+RS232 -down-> MCU
+RS485 -down-> MCU
+ETH -down-> MCU
+UI -down-> MCU
+MEM -down-> MCU
+MCU -down-> GPIO
+
+' Control to RF block
+GPIO -down-> XPT
+IN1 -down-> XPT
+IN2 -down-> XPT
+IN3 -down-> XPT
+IN4 -down-> XPT
+XPT -down-> OUT1
+XPT -down-> OUT2
+XPT -down-> OUT3
+XPT -down-> OUT4
+MON -down-> XPT
+
+' Power block connections
+AC -down-> PROT
+PROT -down-> RAILS
+RAILS -down-> MCU
+RAILS -down-> UI
+RAILS -down-> XPT
+RAILS -down-> MON
+
+@enduml
