@@ -1,0 +1,137 @@
+@startuml
+
+skinparam shadowing false
+skinparam defaultTextAlignment center
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+skinparam ArrowColor Black
+skinparam Rectangle {
+  BorderColor Black
+}
+
+' =================== LAYERS ===================
+package "Application Layer" #F0F8FF {
+  component "StartThread\n(init, netif, LwIP bring-up)" as APP_START
+  component "DisplayTask\n(UI state machine)" as APP_DISP
+  component "KeypadTask\n(4x4 scan + debounce)" as APP_KEYPAD
+  component "UART Console Task\n(prvUARTCommandConsoleTask)" as APP_CLI
+  component "RF Switch Control\n(rfswitch.c)" as APP_RFSW
+  component "TCP Echo Server\n(tcpecho.c)" as APP_TCP
+  component "UDP Echo Server\n(udpecho.c)" as APP_UDP
+}
+
+package "Middleware" #F5FFFA {
+  component "FreeRTOS\n(CMSIS-RTOS API)" as OS
+  component "FreeRTOS+CLI\n(FreeRTOS_CLI.c)" as CLI
+  component "LwIP (Netconn)\n(app_ethernet.c, ethernetif.c)" as LWIP
+  component "EEPROM Emulation\n(eeprom.c)" as EEP
+}
+
+package "HAL / Drivers" #FFFFF0 {
+  component "STM32 HAL\n(GPIO, ETH, USART, TIM)" as HAL
+  component "GPIO Driver\n(gpio.c)" as DRV_GPIO
+  component "USART Driver\n(usart.c)" as DRV_USART
+}
+
+package "Hardware" #FFF0F5 {
+  component "STM32F439ZI\n(Cortex-M4F)" as MCU
+  component "ETH PHY + RJ45" as ETHPHY
+  component "LCD (Text)\n(lcd.c)" as LCD
+  component "Keypad 4x4\n(Keypad.c)" as KEYPAD
+  component "RF Switch Matrix (8× 1P4T)\n(GPIO-controlled)" as RFMAT
+  component "Flash (EEPROM Emu)" as FLASH
+}
+
+' =================== QUEUES / IPC ===================
+queue "keypadQueue\n(xQueue<KEYPAD_CODES>)" as Q_KEYPAD
+
+' =================== RELATIONSHIPS: APP -> MW -> DRV -> HW ===================
+
+' App tasks use RTOS
+APP_START -down-> OS
+APP_DISP  -down-> OS
+APP_KEYPAD -down-> OS
+APP_CLI -down-> OS
+APP_TCP -down-> OS
+APP_UDP -down-> OS
+APP_RFSW -down-> OS
+
+' CLI uses FreeRTOS+CLI
+APP_CLI -down-> CLI
+
+' Networking
+APP_START -down-> LWIP : netif init\nDHCP_thread
+APP_TCP -down-> LWIP : Netconn API
+APP_UDP -down-> LWIP : Netconn API
+
+' EEPROM emulation
+APP_DISP -down-> EEP : load/save config
+APP_CLI  -down-> EEP : read/write params
+
+' RF switch control module
+APP_DISP -down-> APP_RFSW : set routes
+APP_CLI  -down-> APP_RFSW : cli: switch-set\nstatus
+
+' Display <-> Keypad via queue
+APP_KEYPAD -right-> Q_KEYPAD : xQueueSend
+Q_KEYPAD -right-> APP_DISP : xQueueReceive
+
+' Middleware to HAL/Drivers
+LWIP -down-> HAL
+CLI  -down-> HAL
+EEP  -down-> HAL
+
+' Drivers to HAL core
+DRV_GPIO -down-> HAL
+DRV_USART -down-> HAL
+
+' HAL to MCU / Peripherals
+HAL -down-> MCU
+HAL -down-> ETHPHY
+HAL -down-> LCD
+HAL -down-> KEYPAD
+
+' Drivers to Hardware via HAL
+APP_RFSW -down-> DRV_GPIO : GPIO writes
+DRV_GPIO -down-> RFMAT : select lines
+
+APP_CLI -down-> DRV_USART : UART RX/TX
+DRV_USART -down-> MCU
+
+' UI plumbing
+APP_DISP -down-> LCD : print strings\nmenus
+APP_KEYPAD -down-> KEYPAD : scan rows/cols
+
+' LwIP plumbing
+LWIP -down-> ETHPHY : MAC <-> PHY
+
+' EEPROM emulation uses on-chip Flash
+EEP -down-> FLASH : pages/sectors
+
+' =================== NOTES ===================
+note right of APP_START
+- Initializes HAL, clocks
+- Starts LwIP (netif, DHCP_thread)
+- Spawns UI/CLI tasks
+end note
+
+note right of APP_DISP
+- Startup screen, menu
+- Switch status page
+- Settings pages (ETH, baud)
+end note
+
+note right of APP_RFSW
+- Maps INx <-> OUTy
+- Uses GPIO pin tables
+- Readback status APIs
+end note
+
+note bottom of APP_CLI
+Commands in CLI-commands.c:
+- switch set/get
+- show status
+- net info (IP/DHCP)
+end note
+
+@enduml
